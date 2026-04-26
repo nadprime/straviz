@@ -8,14 +8,35 @@ import { cn } from "../lib/utils";
 interface CodeSectionProps {
   code: string;
   language: Language;
+  algorithmName: string;
   onLanguageChange: (lang: Language) => void;
   highlightLine?: number;
   theme: "dark" | "light";
 }
 
-export const CodeSection: React.FC<CodeSectionProps> = ({ code, language, onLanguageChange, highlightLine, theme }) => {
+export const CodeSection: React.FC<CodeSectionProps> = ({ code, language, algorithmName, onLanguageChange, highlightLine, theme }) => {
   const isDark = theme === "dark";
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const fileExt = language === "python" ? "py" : language === "javascript" ? "js" : language;
+  const fileBaseName = React.useMemo(() => {
+    const words = (algorithmName || "algorithm")
+      .replace(/[^a-zA-Z0-9\s]/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (words.length === 0) return "algorithm";
+
+    return words
+      .map((word, idx) => {
+        const lower = word.toLowerCase();
+        if (idx === 0) return lower;
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      })
+      .join("");
+  }, [algorithmName]);
+  const displayFileName = `${fileBaseName}.${fileExt}`;
 
   React.useEffect(() => {
     if (highlightLine !== undefined && highlightLine >= 0 && containerRef.current) {
@@ -49,29 +70,32 @@ export const CodeSection: React.FC<CodeSectionProps> = ({ code, language, onLang
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#0d0d0f] border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-zinc-50/80 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 backdrop-blur-md">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between gap-3 px-4 md:px-6 py-4 bg-zinc-50/80 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 backdrop-blur-md">
+        <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
           <div className="flex gap-2">
             <div className="w-3 h-3 rounded-full bg-rose-500 shadow-lg shadow-rose-500/20" />
             <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/20" />
             <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
           </div>
           
-          <div className="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-700" />
+          <div className="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-700 shrink-0" />
           
-          <div className="flex items-center gap-2">
-             <Code2 size={16} className="text-indigo-500" />
-             <span className="text-xs font-black text-zinc-600 dark:text-zinc-200 font-mono tracking-tight">
-               {language}_implementation.{language === 'python' ? 'py' : language === 'javascript' ? 'js' : language}
+          <div className="flex items-center gap-2 min-w-0">
+             <Code2 size={16} className="text-indigo-500 shrink-0" />
+             <span
+               title={displayFileName}
+               className="text-[11px] md:text-xs font-black text-zinc-600 dark:text-zinc-200 font-mono tracking-tight truncate"
+             >
+               {displayFileName}
              </span>
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative shrink-0">
           <select 
             value={language}
             onChange={(e) => onLanguageChange(e.target.value as Language)}
-            className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg pl-3 pr-8 py-1.5 text-xs font-black text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer outline-none appearance-none shadow-sm uppercase tracking-widest"
+            className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg pl-2.5 md:pl-3 pr-7 md:pr-8 py-1.5 text-[10px] md:text-xs font-black text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-all cursor-pointer outline-none appearance-none shadow-sm uppercase tracking-widest w-[64px] md:w-[76px]"
           >
             <option value="c">C</option>
             <option value="cpp">C++</option>

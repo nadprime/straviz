@@ -13,18 +13,21 @@ export const Footer: React.FC = () => {
             <p className="text-sm text-zinc-500 dark:text-zinc-500 font-medium max-w-xs text-center md:text-left">
               The next generation of algorithm visualization for modern developers.
             </p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-500 font-medium max-w-xs text-center md:text-left">
+              Built with passion by <a href="https://nadprime.pages.dev" className="text-indigo-600 hover:underline">Nadeem Ahmad</a>.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 text-center md:text-left w-full md:w-auto">
                <div className="flex flex-col gap-4">
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Resources</span>
-                  <a href="#" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
+                  <a href="https://github.com/nadprime/straviz" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 shadow-sm group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:border-indigo-200 transition-all">
                       <FileText size={16} />
                     </div>
                     <span className="text-xs font-bold uppercase tracking-widest">Documentation</span>
                   </a>
-                  <a href="#" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
+                  <a href="https://github.com/nadprime/straviz" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 shadow-sm group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:border-indigo-200 transition-all">
                       <Github size={16} />
                     </div>
@@ -33,13 +36,13 @@ export const Footer: React.FC = () => {
                </div>
                <div className="flex flex-col gap-4">
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Connect</span>
-                  <a href="#" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
+                  <a href="https://x.com/nadprime" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 shadow-sm group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:border-indigo-200 transition-all">
                       <Twitter size={16} />
                     </div>
                     <span className="text-xs font-bold uppercase tracking-widest">Twitter</span>
                   </a>
-                  <a href="#" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
+                  <a href="https://www.linkedin.com/in/nadprime" className="flex items-center justify-center md:justify-start gap-3 text-zinc-500 hover:text-indigo-600 transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 shadow-sm group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:border-indigo-200 transition-all">
                       <Linkedin size={16} />
                     </div>
@@ -66,7 +69,7 @@ export const Footer: React.FC = () => {
 
         <div className="mt-12 pt-8 border-t border-zinc-100 dark:border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                © 2026 Straviz Visualizer
+                © 2026 Straviz
             </div>
             <div className="flex gap-6">
                 <Github size={16} className="text-zinc-400 hover:text-indigo-600 cursor-pointer transition-colors" />

@@ -113,19 +113,23 @@ export const generateGraphBFSSteps = (startNode: string): AlgoStep[] => {
   const visited = new Set<string>();
   const queue = [startNode];
   const adj: any = { 'A': ['B', 'C'], 'B': ['A', 'D', 'E'], 'C': ['A', 'F'], 'D': ['B'], 'E': ['B', 'F'], 'F': ['C', 'E'] };
+  const graphData = {
+    nodes: MOCK_GRAPH_DATA.nodes,
+    edges: MOCK_GRAPH_DATA.links.map((l) => [l.source, l.target]) as [string, string][],
+  };
 
   visited.add(startNode);
-  steps.push({ current: startNode, visited: new Set(visited), description: "Starting BFS from node A", lineIdx: 0 });
+  steps.push({ current: startNode, visited: new Set(visited), description: "Starting BFS from node A", lineIdx: 0, graphData });
 
   while (queue.length > 0) {
     const curr = queue.shift()!;
-    steps.push({ current: curr, visited: new Set(visited), description: `Processing node ${curr}`, lineIdx: 6 });
+    steps.push({ current: curr, visited: new Set(visited), description: `Processing node ${curr}`, lineIdx: 6, graphData });
 
     for (const neighbor of adj[curr]) {
       if (!visited.has(neighbor)) {
         visited.add(neighbor);
         queue.push(neighbor);
-        steps.push({ current: curr, visited: new Set(visited), description: `Visiting neighbor ${neighbor}`, lineIdx: 10 });
+        steps.push({ current: curr, visited: new Set(visited), description: `Visiting neighbor ${neighbor}`, lineIdx: 10, graphData });
       }
     }
   }
@@ -632,7 +636,18 @@ export const generateDijkstraSteps = (startNode: string): AlgoStep[] => {
     'E': { x: 150, y: 280, label: 'E' },
     'F': { x: 300, y: 280, label: 'F' },
   };
-  const graphData = { nodes: nodes, edges: MOCK_GRAPH_DATA.links.map(l => [l.source, l.target]) as [string, string][] };
+  const graphData = {
+    nodes: nodes,
+    edges: MOCK_GRAPH_DATA.links.map(l => [l.source, l.target]) as [string, string][],
+    edgeWeights: {
+      'A-B': 4,
+      'A-C': 2,
+      'B-D': 5,
+      'B-E': 2,
+      'C-F': 3,
+      'E-F': 1,
+    },
+  };
   const adj: any = { 'A': [['B', 4], ['C', 2]], 'B': [['A', 4], ['D', 5]], 'C': [['A', 2], ['F', 3]], 'D': [['B', 1]], 'E': [['B', 2], ['F', 1]], 'F': [['C', 3], ['E', 1]] };
 
   Object.keys(nodes).forEach(node => dist[node] = Infinity);
@@ -730,13 +745,11 @@ export const generateBSTTraversals = (type: 'pre' | 'in' | 'post'): AlgoStep[] =
   const edges: [string, string][] = [['50', '30'], ['50', '70']];
   const graphData = { nodes, edges };
   const visited = new Set<string>();
-  const order: string[] = [];
 
   const traverse = (node: string) => {
     if (type === 'pre') {
-      order.push(node);
       visited.add(node);
-      steps.push({ current: node, visited: new Set(visited), description: `Visiting root ${node}`, graphData, array: [...order.map(Number)] });
+      steps.push({ current: node, visited: new Set(visited), description: `Visiting root ${node}`, graphData });
     }
     
     if (node === '50') {
@@ -744,9 +757,8 @@ export const generateBSTTraversals = (type: 'pre' | 'in' | 'post'): AlgoStep[] =
     }
 
     if (type === 'in') {
-      order.push(node);
       visited.add(node);
-      steps.push({ current: node, visited: new Set(visited), description: `Visiting node ${node}`, graphData, array: [...order.map(Number)] });
+      steps.push({ current: node, visited: new Set(visited), description: `Visiting node ${node}`, graphData });
     }
 
     if (node === '50') {
@@ -754,13 +766,733 @@ export const generateBSTTraversals = (type: 'pre' | 'in' | 'post'): AlgoStep[] =
     }
 
     if (type === 'post') {
-      order.push(node);
       visited.add(node);
-      steps.push({ current: node, visited: new Set(visited), description: `Visiting node ${node}`, graphData, array: [...order.map(Number)] });
+      steps.push({ current: node, visited: new Set(visited), description: `Visiting node ${node}`, graphData });
     }
   };
 
-  steps.push({ description: `Starting ${type}order traversal`, graphData, array: [] });
+  steps.push({ description: `Starting ${type}order traversal`, graphData });
   traverse('50');
+  return steps;
+};
+
+export const generateArraysBasicSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const arr = [...inputArray];
+
+  steps.push({ array: [...arr], description: "Array initialized", lineIdx: 0 });
+  arr.forEach((value, idx) => {
+    steps.push({
+      array: [...arr],
+      highlightIdx: [idx],
+      description: `Accessing arr[${idx}] = ${value}`,
+      lineIdx: 1,
+    });
+  });
+
+  if (arr.length > 0) {
+    arr[0] = arr[0] + 5;
+    steps.push({
+      array: [...arr],
+      swapIdx: [0],
+      description: `Updating first element to ${arr[0]}`,
+      lineIdx: 2,
+    });
+  }
+
+  steps.push({ array: [...arr], description: "Array traversal complete", lineIdx: 3 });
+  return steps;
+};
+
+export const generateHashTableSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const size = 7;
+  const table = new Array(size).fill(-1);
+
+  steps.push({ array: [...table], description: `Created hash table with ${size} slots`, lineIdx: 0 });
+
+  inputArray.slice(0, 6).forEach((value) => {
+    let idx = Math.abs(value) % size;
+    const start = idx;
+    steps.push({ array: [...table], highlightIdx: [idx], description: `Hash(${value}) -> ${idx}`, lineIdx: 1 });
+
+    while (table[idx] !== -1) {
+      steps.push({ array: [...table], compareIdx: [idx], description: `Collision at ${idx}, probing next slot`, lineIdx: 2 });
+      idx = (idx + 1) % size;
+      if (idx === start) break;
+    }
+
+    if (table[idx] === -1) {
+      table[idx] = value;
+      steps.push({ array: [...table], swapIdx: [idx], description: `Inserted ${value} at slot ${idx}`, lineIdx: 3 });
+    }
+  });
+
+  return steps;
+};
+
+export const generateBucketSortSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const arr = [...inputArray];
+  if (arr.length === 0) return [{ array: [], description: "No data for Bucket Sort", lineIdx: 0 }];
+
+  const min = Math.min(...arr);
+  const max = Math.max(...arr);
+  const bucketCount = Math.max(3, Math.ceil(Math.sqrt(arr.length)));
+  const range = Math.max(1, max - min + 1);
+  const buckets: number[][] = Array.from({ length: bucketCount }, () => []);
+
+  steps.push({ array: [...arr], description: `Creating ${bucketCount} buckets`, lineIdx: 0 });
+
+  arr.forEach((value, i) => {
+    const idx = Math.min(bucketCount - 1, Math.floor(((value - min) / range) * bucketCount));
+    buckets[idx].push(value);
+    steps.push({
+      array: buckets.flat(),
+      highlightIdx: [buckets.flat().length - 1],
+      description: `Placed ${value} in bucket ${idx}`,
+      lineIdx: 2,
+    });
+    steps.push({ array: [...arr], compareIdx: [i], description: `Distributed element ${value}`, lineIdx: 3 });
+  });
+
+  const sorted: number[] = [];
+  buckets.forEach((bucket, idx) => {
+    bucket.sort((a, b) => a - b);
+    bucket.forEach((v) => sorted.push(v));
+    steps.push({
+      array: [...sorted],
+      sortedIdx: Array.from({ length: sorted.length }, (_, i) => i),
+      description: `Sorted bucket ${idx} and merged`,
+      lineIdx: 5,
+    });
+  });
+
+  return steps;
+};
+
+export const generateAVLTreeSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const graphData = {
+    nodes: {
+      '30': { x: 200, y: 70, label: '30' },
+      '20': { x: 120, y: 170, label: '20' },
+      '40': { x: 280, y: 170, label: '40' },
+      '10': { x: 80, y: 270, label: '10' },
+      '25': { x: 160, y: 270, label: '25' },
+    },
+    edges: [['30', '20'], ['30', '40'], ['20', '10'], ['20', '25']] as [string, string][],
+  };
+
+  steps.push({ graphData, description: "Start AVL insertion sequence", current: '30', lineIdx: 0 });
+  steps.push({ graphData, visited: new Set(['30', '20', '10']), current: '10', description: "Imbalance detected at node 30", lineIdx: 2 });
+  steps.push({ graphData, visited: new Set(['20', '30', '40', '10', '25']), current: '20', description: "Right rotation restores balance", lineIdx: 4 });
+  return steps;
+};
+
+export const generateBTreeSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const graphData = {
+    nodes: {
+      '20|40': { x: 200, y: 70, label: '20|40' },
+      '10': { x: 100, y: 190, label: '10' },
+      '30': { x: 200, y: 190, label: '30' },
+      '50|60': { x: 300, y: 190, label: '50|60' },
+    },
+    edges: [['20|40', '10'], ['20|40', '30'], ['20|40', '50|60']] as [string, string][],
+  };
+
+  steps.push({ graphData, current: '20|40', description: "B-Tree root created", lineIdx: 0 });
+  steps.push({ graphData, current: '50|60', visited: new Set(['20|40', '50|60']), description: "Inserted keys while keeping nodes sorted", lineIdx: 2 });
+  steps.push({ graphData, visited: new Set(Object.keys(graphData.nodes)), description: "Split operation keeps B-Tree balanced", lineIdx: 4 });
+  return steps;
+};
+
+const WEIGHTED_GRAPH = {
+  nodes: {
+    'A': { x: 180, y: 70, label: 'A' },
+    'B': { x: 80, y: 170, label: 'B' },
+    'C': { x: 280, y: 170, label: 'C' },
+    'D': { x: 80, y: 280, label: 'D' },
+    'E': { x: 180, y: 280, label: 'E' },
+    'F': { x: 280, y: 280, label: 'F' },
+  },
+  edges: [
+    ['A', 'B'], ['A', 'C'], ['B', 'D'], ['B', 'E'], ['C', 'E'], ['C', 'F'], ['E', 'F'], ['D', 'E'],
+  ] as [string, string][],
+};
+
+const WEIGHTED_EDGE_MAP: Record<string, number> = {
+  'A-B': 4,
+  'A-C': 2,
+  'B-D': 5,
+  'B-E': 3,
+  'C-E': 3,
+  'C-F': 6,
+  'D-E': 2,
+  'E-F': 1,
+};
+
+export const generateBellmanFordSteps = (startNode: string): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const edges: [string, string, number][] = [
+    ['A', 'B', 4], ['A', 'C', 2], ['B', 'D', 3], ['B', 'E', 2], ['C', 'E', 3], ['E', 'F', 1], ['D', 'E', -1], ['C', 'F', 8],
+  ];
+  const dist: Record<string, number> = {};
+  const graphData = {
+    ...WEIGHTED_GRAPH,
+    edgeWeights: {
+      'A->B': 4,
+      'A->C': 2,
+      'B->D': 3,
+      'B->E': 2,
+      'C->E': 3,
+      'E->F': 1,
+      'D->E': -1,
+      'C->F': 8,
+    },
+    directed: true,
+  };
+  Object.keys(WEIGHTED_GRAPH.nodes).forEach((n) => (dist[n] = Infinity));
+  dist[startNode] = 0;
+
+  steps.push({ graphData, current: startNode, visited: new Set([startNode]), description: `Initialized Bellman-Ford from ${startNode}`, lineIdx: 0 });
+  for (let i = 0; i < Object.keys(WEIGHTED_GRAPH.nodes).length - 1; i++) {
+    edges.forEach(([u, v, w]) => {
+      if (dist[u] !== Infinity && dist[u] + w < dist[v]) {
+        dist[v] = dist[u] + w;
+        steps.push({
+          graphData,
+          current: v,
+          visited: new Set([u, v]),
+          description: `Relaxed ${u}->${v} (w=${w}), dist(${v})=${dist[v]}`,
+          lineIdx: 3,
+        });
+      }
+    });
+  }
+  return steps;
+};
+
+export const generateKruskalSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const sortedEdges: [string, string, number][] = [
+    ['E', 'F', 1], ['A', 'C', 2], ['D', 'E', 2], ['B', 'E', 3], ['A', 'B', 4], ['B', 'D', 5], ['C', 'F', 6],
+  ];
+  const chosen: [string, string][] = [];
+  const visited = new Set<string>();
+
+  const nodes = Object.keys(WEIGHTED_GRAPH.nodes);
+  const parent: Record<string, string> = {};
+  const rank: Record<string, number> = {};
+  nodes.forEach((n) => {
+    parent[n] = n;
+    rank[n] = 0;
+  });
+
+  const find = (x: string): string => {
+    if (parent[x] !== x) parent[x] = find(parent[x]);
+    return parent[x];
+  };
+
+  const union = (a: string, b: string): boolean => {
+    let ra = find(a);
+    let rb = find(b);
+    if (ra === rb) return false;
+    if (rank[ra] < rank[rb]) [ra, rb] = [rb, ra];
+    parent[rb] = ra;
+    if (rank[ra] === rank[rb]) rank[ra]++;
+    return true;
+  };
+
+  const graphData = { ...WEIGHTED_GRAPH, edgeWeights: WEIGHTED_EDGE_MAP };
+  steps.push({ graphData, description: "Sorting edges by weight", lineIdx: 0 });
+
+  sortedEdges.forEach(([u, v, w]) => {
+    if (union(u, v)) {
+      chosen.push([u, v]);
+      visited.add(u);
+      visited.add(v);
+      steps.push({
+        graphData: {
+          nodes: WEIGHTED_GRAPH.nodes,
+          edges: [...chosen],
+          edgeWeights: WEIGHTED_EDGE_MAP,
+        },
+        current: v,
+        visited: new Set(visited),
+        description: `Added edge ${u}-${v} (w=${w}) to MST`,
+        lineIdx: 2,
+      });
+    } else {
+      steps.push({ graphData, current: u, visited: new Set(visited), description: `Skipped ${u}-${v} (w=${w}) to avoid cycle`, lineIdx: 4 });
+    }
+  });
+
+  return steps;
+};
+
+export const generatePrimSteps = (startNode: string): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const weightedEdges: [string, string, number][] = [
+    ['A', 'B', 4], ['A', 'C', 2], ['B', 'D', 5], ['B', 'E', 3], ['C', 'E', 3], ['C', 'F', 6], ['D', 'E', 2], ['E', 'F', 1],
+  ];
+  const adj: Record<string, [string, number][]> = {};
+  Object.keys(WEIGHTED_GRAPH.nodes).forEach((n) => (adj[n] = []));
+  weightedEdges.forEach(([u, v, w]) => {
+    adj[u].push([v, w]);
+    adj[v].push([u, w]);
+  });
+
+  const visited = new Set<string>();
+  const mstEdges: [string, string][] = [];
+
+  steps.push({ graphData: { ...WEIGHTED_GRAPH, edgeWeights: WEIGHTED_EDGE_MAP }, current: startNode, visited: new Set([startNode]), description: `Starting Prim from ${startNode}`, lineIdx: 0 });
+
+  visited.add(startNode);
+  while (visited.size < Object.keys(WEIGHTED_GRAPH.nodes).length) {
+    let best: [string, string, number] | null = null;
+    for (const u of visited) {
+      for (const [v, w] of adj[u]) {
+        if (visited.has(v)) continue;
+        if (!best || w < best[2]) best = [u, v, w];
+      }
+    }
+    if (!best) break;
+
+    visited.add(best[1]);
+    mstEdges.push([best[0], best[1]]);
+    steps.push({
+      graphData: { nodes: WEIGHTED_GRAPH.nodes, edges: [...mstEdges], edgeWeights: WEIGHTED_EDGE_MAP },
+      current: best[1],
+      visited: new Set(visited),
+      description: `Chose edge ${best[0]}-${best[1]} (w=${best[2]})`,
+      lineIdx: 3,
+    });
+  }
+
+  return steps;
+};
+
+export const generateWarshallSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const INF = 999;
+  const n = 4;
+  const dist2D = [
+    [0, 5, 9, INF],
+    [INF, 0, 2, 6],
+    [INF, INF, 0, 1],
+    [4, INF, INF, 0],
+  ];
+  const flat = () => dist2D.flat();
+
+  steps.push({ array: flat(), description: "Initial 4x4 distance matrix (flattened)", lineIdx: 0 });
+
+  for (let k = 0; k < n; k++) {
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const throughK = dist2D[i][k] + dist2D[k][j];
+        if (throughK < dist2D[i][j]) {
+          dist2D[i][j] = throughK;
+          const idx = i * n + j;
+          steps.push({
+            array: flat(),
+            highlightIdx: [idx, i * n + k, k * n + j],
+            description: `Updated d(${i},${j}) via ${k} -> ${throughK}`,
+            lineIdx: 4,
+          });
+        }
+      }
+    }
+  }
+
+  steps.push({ array: flat(), sortedIdx: Array.from({ length: n * n }, (_, i) => i), description: "All-pairs shortest paths complete", lineIdx: 6 });
+  return steps;
+};
+
+export const generateStrassenSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const a = [1, 3, 7, 5];
+  const b = [6, 8, 4, 2];
+  const p = [
+    (a[0] + a[3]) * (b[0] + b[3]),
+    (a[2] + a[3]) * b[0],
+    a[0] * (b[1] - b[3]),
+    a[3] * (b[2] - b[0]),
+    (a[0] + a[1]) * b[3],
+    (a[2] - a[0]) * (b[0] + b[1]),
+    (a[1] - a[3]) * (b[2] + b[3]),
+  ];
+
+  steps.push({ array: [...a, ...b], description: "Loaded two 2x2 matrices A and B", lineIdx: 0 });
+  p.forEach((value, idx) => {
+    steps.push({ array: [...p.slice(0, idx + 1)], highlightIdx: [idx], description: `Computed P${idx + 1} = ${value}`, lineIdx: 2 });
+  });
+
+  const c11 = p[0] + p[3] - p[4] + p[6];
+  const c12 = p[2] + p[4];
+  const c21 = p[1] + p[3];
+  const c22 = p[0] - p[1] + p[2] + p[5];
+  steps.push({ array: [c11, c12, c21, c22], sortedIdx: [0, 1, 2, 3], description: "Combined P terms into result matrix C", lineIdx: 5 });
+  return steps;
+};
+
+export const generateDoublyLinkedListSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const nodes: { id: string; value: number }[] = [];
+
+  steps.push({ nodes: [], description: "Initializing empty Doubly Linked List", lineIdx: 0 });
+  inputArray.slice(0, 6).forEach((value, idx) => {
+    nodes.push({ id: `d-${idx}`, value });
+    steps.push({ nodes: [...nodes], description: `Inserted ${value}; prev and next pointers updated`, lineIdx: 2 });
+  });
+
+  return steps;
+};
+
+export const generateCircularLinkedListSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const nodes: { id: string; value: number }[] = [];
+
+  steps.push({ nodes: [], description: "Initializing Circular Linked List", lineIdx: 0 });
+  inputArray.slice(0, 6).forEach((value, idx) => {
+    nodes.push({ id: `c-${idx}`, value });
+    steps.push({ nodes: [...nodes], description: `Inserted ${value}; tail now points back to head`, lineIdx: 3 });
+  });
+
+  return steps;
+};
+
+export const generateHuffmanCodingSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const freq = inputArray.slice(0, 5).map((value, idx) => ({ ch: String.fromCharCode(65 + idx), f: Math.max(1, Math.abs(value % 10)) }));
+  steps.push({ array: freq.map((x) => x.f), description: "Created frequency table", lineIdx: 0 });
+
+  const queue = [...freq].sort((a, b) => a.f - b.f);
+  while (queue.length > 1) {
+    const a = queue.shift()!;
+    const b = queue.shift()!;
+    const merged = { ch: `${a.ch}${b.ch}`, f: a.f + b.f };
+    queue.push(merged);
+    queue.sort((x, y) => x.f - y.f);
+    steps.push({ array: queue.map((x) => x.f), description: `Merged ${a.ch} and ${b.ch} -> ${merged.f}`, lineIdx: 2 });
+  }
+
+  steps.push({ array: queue.map((x) => x.f), sortedIdx: [0], description: "Huffman tree root finalized", lineIdx: 4 });
+  return steps;
+};
+
+export const generateThreadedBinaryTreeSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const graphData = {
+    nodes: {
+      '40': { x: 200, y: 70, label: '40' },
+      '20': { x: 120, y: 170, label: '20' },
+      '60': { x: 280, y: 170, label: '60' },
+      '10': { x: 80, y: 270, label: '10' },
+      '30': { x: 160, y: 270, label: '30' },
+    },
+    edges: [['40', '20'], ['40', '60'], ['20', '10'], ['20', '30']] as [string, string][],
+  };
+
+  steps.push({ graphData, current: '40', description: "Threaded BST created", lineIdx: 0 });
+  steps.push({ graphData, visited: new Set(['10', '20', '30']), current: '30', description: "Added thread from 30 to inorder successor 40", lineIdx: 2 });
+  steps.push({ graphData, visited: new Set(['10', '20', '30', '40', '60']), description: "Inorder traversal using threads complete", lineIdx: 4 });
+  return steps;
+};
+
+export const generateKnapsackSteps = (weights: number[], capacity: number): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const w = weights.slice(0, 5).map((x) => Math.max(1, Math.min(10, Math.abs(x))));
+  const values = w.map((x, i) => x + i + 2);
+  const dp = new Array(capacity + 1).fill(0);
+
+  steps.push({ array: [...dp], description: `0/1 Knapsack with capacity ${capacity}`, lineIdx: 0 });
+  for (let i = 0; i < w.length; i++) {
+    for (let c = capacity; c >= w[i]; c--) {
+      dp[c] = Math.max(dp[c], dp[c - w[i]] + values[i]);
+      steps.push({
+        array: [...dp],
+        highlightIdx: [c],
+        compareIdx: [c - w[i]],
+        description: `Item ${i} (w=${w[i]}, v=${values[i]}) updates dp[${c}]`,
+        lineIdx: 3,
+      });
+    }
+  }
+  return steps;
+};
+
+export const generateLCSSteps = (seqA: string, seqB: string): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const a = seqA.slice(0, 6);
+  const b = seqB.slice(0, 6);
+  const cols = b.length + 1;
+  const dp = new Array((a.length + 1) * (b.length + 1)).fill(0);
+
+  steps.push({ array: [...dp], description: `Building LCS DP table for ${a} and ${b}`, lineIdx: 0 });
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const idx = i * cols + j;
+      if (a[i - 1] === b[j - 1]) {
+        dp[idx] = dp[(i - 1) * cols + (j - 1)] + 1;
+      } else {
+        dp[idx] = Math.max(dp[(i - 1) * cols + j], dp[i * cols + (j - 1)]);
+      }
+      steps.push({ array: [...dp], highlightIdx: [idx], description: `dp[${i}][${j}] = ${dp[idx]}`, lineIdx: 2 });
+    }
+  }
+
+  steps.push({ array: [...dp], sortedIdx: [dp.length - 1], description: `LCS length = ${dp[dp.length - 1]}`, lineIdx: 5 });
+  return steps;
+};
+
+export const generateTopologicalSortSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const graphData = {
+    nodes: {
+      'A': { x: 70, y: 90, label: 'A' },
+      'B': { x: 180, y: 90, label: 'B' },
+      'C': { x: 290, y: 90, label: 'C' },
+      'D': { x: 120, y: 220, label: 'D' },
+      'E': { x: 240, y: 220, label: 'E' },
+    },
+    edges: [['A', 'B'], ['A', 'D'], ['B', 'C'], ['D', 'E'], ['C', 'E']] as [string, string][],
+    directed: true,
+  };
+  const indegree: Record<string, number> = {};
+  Object.keys(graphData.nodes).forEach((n) => (indegree[n] = 0));
+  graphData.edges.forEach(([u, v]) => {
+    if (graphData.nodes[u] && graphData.nodes[v]) indegree[v]++;
+  });
+
+  const queue = Object.keys(indegree).filter((n) => indegree[n] === 0);
+  const order: string[] = [];
+  const visited = new Set<string>();
+
+  steps.push({ graphData, description: "Computing indegrees and queueing zero-indegree nodes", lineIdx: 0 });
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    order.push(node);
+    visited.add(node);
+    steps.push({ graphData, current: node, visited: new Set(visited), description: `Output ${node} at position ${order.length}`, lineIdx: 3 });
+    graphData.edges.forEach(([u, v]) => {
+      if (u === node) {
+        indegree[v]--;
+        if (indegree[v] === 0) queue.push(v);
+      }
+    });
+  }
+
+  return steps;
+};
+
+export const generateAStarSteps = (startNode: string, goalNode: string): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const weightedEdges: [string, string, number][] = [
+    ['A', 'B', 4], ['A', 'C', 2], ['B', 'D', 5], ['B', 'E', 3], ['C', 'E', 2], ['C', 'F', 6], ['D', 'E', 2], ['E', 'F', 1],
+  ];
+  const adj: Record<string, [string, number][]> = {};
+  Object.keys(WEIGHTED_GRAPH.nodes).forEach((n) => (adj[n] = []));
+  weightedEdges.forEach(([u, v, w]) => {
+    adj[u].push([v, w]);
+    adj[v].push([u, w]);
+  });
+
+  const heuristic: Record<string, number> = { A: 5, B: 4, C: 2, D: 3, E: 1, F: 0 };
+  const g: Record<string, number> = {};
+  const f: Record<string, number> = {};
+  const cameFrom: Record<string, string | null> = {};
+  Object.keys(WEIGHTED_GRAPH.nodes).forEach((n) => {
+    g[n] = Infinity;
+    f[n] = Infinity;
+    cameFrom[n] = null;
+  });
+
+  g[startNode] = 0;
+  f[startNode] = heuristic[startNode] ?? 0;
+  const open = new Set<string>([startNode]);
+  const visited = new Set<string>();
+
+  steps.push({ graphData: { ...WEIGHTED_GRAPH, edgeWeights: WEIGHTED_EDGE_MAP }, current: startNode, description: `A* search from ${startNode} to ${goalNode}`, lineIdx: 0 });
+
+  while (open.size > 0) {
+    let current = Array.from(open).sort((a, b) => f[a] - f[b])[0];
+    open.delete(current);
+    visited.add(current);
+
+    steps.push({
+      graphData: { ...WEIGHTED_GRAPH, edgeWeights: WEIGHTED_EDGE_MAP },
+      current,
+      visited: new Set(visited),
+      description: `Expanded ${current} with f=${f[current]}`,
+      lineIdx: 2,
+    });
+
+    if (current === goalNode) break;
+
+    for (const [neighbor, w] of adj[current]) {
+      const tentativeG = g[current] + w;
+      if (tentativeG < g[neighbor]) {
+        cameFrom[neighbor] = current;
+        g[neighbor] = tentativeG;
+        f[neighbor] = tentativeG + (heuristic[neighbor] ?? 0);
+        open.add(neighbor);
+      }
+    }
+  }
+
+  const path: string[] = [];
+  let node: string | null = goalNode;
+  while (node) {
+    path.push(node);
+    node = cameFrom[node] ?? null;
+  }
+  path.reverse();
+
+  if (path.length > 0 && path[0] === startNode) {
+    const pathEdges: [string, string][] = [];
+    for (let i = 1; i < path.length; i++) pathEdges.push([path[i - 1], path[i]]);
+    steps.push({
+      graphData: { nodes: WEIGHTED_GRAPH.nodes, edges: pathEdges, edgeWeights: WEIGHTED_EDGE_MAP },
+      current: goalNode,
+      visited: new Set(path),
+      description: `Reached goal ${goalNode}; path ${path.join(' -> ')}`,
+      lineIdx: 4,
+    });
+  }
+
+  return steps;
+};
+
+export const generateKMPSteps = (text: string, pattern: string): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const t = text.slice(0, 12);
+  const p = pattern.slice(0, 5);
+  const lps = new Array(p.length).fill(0);
+
+  steps.push({ array: t.split('').map((c) => c.charCodeAt(0) - 64), description: `Searching pattern ${p} in text ${t}`, lineIdx: 0 });
+
+  let len = 0;
+  for (let i = 1; i < p.length; ) {
+    if (p[i] === p[len]) {
+      lps[i++] = ++len;
+      steps.push({ array: [...lps], highlightIdx: [i - 1], description: `Built LPS index ${i - 1} = ${lps[i - 1]}`, lineIdx: 2 });
+    } else if (len !== 0) {
+      len = lps[len - 1];
+    } else {
+      lps[i++] = 0;
+    }
+  }
+
+  let i = 0;
+  let j = 0;
+  while (i < t.length) {
+    steps.push({ array: t.split('').map((c) => c.charCodeAt(0) - 64), compareIdx: [i], highlightIdx: [j], description: `Compare text[${i}] with pattern[${j}]`, lineIdx: 6 });
+    if (t[i] === p[j]) {
+      i++;
+      j++;
+      if (j === p.length) {
+        steps.push({ array: [i - j], sortedIdx: [0], description: `Pattern found at index ${i - j}`, lineIdx: 8 });
+        break;
+      }
+    } else if (j !== 0) {
+      j = lps[j - 1];
+    } else {
+      i++;
+    }
+  }
+
+  return steps;
+};
+
+export const generateSegmentTreeSteps = (inputArray: number[]): AlgoStep[] => {
+  const arr = inputArray.slice(0, 6);
+  const steps: AlgoStep[] = [];
+  if (arr.length === 0) return [{ array: [], description: "No data for Segment Tree", lineIdx: 0 }];
+
+  const tree: number[] = [];
+  const build = (node: number, l: number, r: number): number => {
+    if (l === r) {
+      tree[node] = arr[l];
+      steps.push({ array: [...tree], highlightIdx: [node], description: `Leaf node ${node} = ${arr[l]}`, lineIdx: 2 });
+      return tree[node];
+    }
+    const mid = Math.floor((l + r) / 2);
+    const left = build(2 * node + 1, l, mid);
+    const right = build(2 * node + 2, mid + 1, r);
+    tree[node] = left + right;
+    steps.push({ array: [...tree], highlightIdx: [node], compareIdx: [2 * node + 1, 2 * node + 2], description: `Internal node ${node} = ${tree[node]}`, lineIdx: 4 });
+    return tree[node];
+  };
+
+  steps.push({ array: [...arr], description: "Building Segment Tree for range sums", lineIdx: 0 });
+  build(0, 0, arr.length - 1);
+  steps.push({ array: [...tree], sortedIdx: [0], description: `Range sum [0, ${arr.length - 1}] = ${tree[0]}`, lineIdx: 6 });
+  return steps;
+};
+
+export const generateFenwickTreeSteps = (inputArray: number[]): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const arr = inputArray.slice(0, 7);
+  const bit = new Array(arr.length + 1).fill(0);
+
+  steps.push({ array: [...bit], description: "Initialized Fenwick tree", lineIdx: 0 });
+
+  const update = (idx: number, delta: number) => {
+    let i = idx + 1;
+    while (i < bit.length) {
+      bit[i] += delta;
+      steps.push({ array: [...bit], highlightIdx: [i], description: `Updated BIT[${i}] by ${delta}`, lineIdx: 2 });
+      i += i & -i;
+    }
+  };
+
+  arr.forEach((value, idx) => update(idx, value));
+
+  let prefix = 0;
+  let i = Math.min(5, arr.length);
+  while (i > 0) {
+    prefix += bit[i];
+    steps.push({ array: [...bit], compareIdx: [i], description: `Accumulating prefix, now ${prefix}`, lineIdx: 5 });
+    i -= i & -i;
+  }
+
+  steps.push({ array: [...bit], sortedIdx: [0], description: `Prefix sum query complete: ${prefix}`, lineIdx: 6 });
+  return steps;
+};
+
+export const generateDSUSteps = (): AlgoStep[] => {
+  const steps: AlgoStep[] = [];
+  const parent = [0, 1, 2, 3, 4, 5];
+  const rank = [0, 0, 0, 0, 0, 0];
+
+  const find = (x: number): number => {
+    if (parent[x] !== x) parent[x] = find(parent[x]);
+    return parent[x];
+  };
+
+  const union = (a: number, b: number) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra === rb) return;
+    if (rank[ra] < rank[rb]) parent[ra] = rb;
+    else if (rank[ra] > rank[rb]) parent[rb] = ra;
+    else {
+      parent[rb] = ra;
+      rank[ra]++;
+    }
+    steps.push({ array: [...parent], highlightIdx: [a, b], description: `Union(${a}, ${b})`, lineIdx: 2 });
+  };
+
+  steps.push({ array: [...parent], description: "Initialized DSU parent array", lineIdx: 0 });
+  union(0, 1);
+  union(2, 3);
+  union(1, 2);
+  union(4, 5);
+  union(3, 5);
+  steps.push({ array: [...parent], sortedIdx: parent.map((_, i) => i), description: "Final connected components formed", lineIdx: 4 });
   return steps;
 };

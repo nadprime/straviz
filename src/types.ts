@@ -17,6 +17,8 @@ export interface AlgoStep {
   graphData?: {
     nodes: { [id: string]: { x: number, y: number, label: string } };
     edges: [string, string][];
+    edgeWeights?: { [edge: string]: number };
+    directed?: boolean;
   };
 }
 

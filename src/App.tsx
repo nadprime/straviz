@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { LandingPage } from "./components/LandingPage";
 import { Footer } from "./components/Footer";
@@ -6,16 +6,33 @@ import { VisualizerStage } from "./components/VisualizerStage";
 import { CodeSection } from "./components/CodeSection";
 import { ALGORITHMS } from "./constants/algorithms";
 import { Algorithm, Language, AlgoStep } from "./types";
-import { generateBubbleSortSteps, generateInsertionSortSteps, generateLinkedListSteps, generateGraphBFSSteps, generateBinarySearchSteps, generateStackSteps, generateMergeSortSteps, generateQueueSteps, generateBSTSearchSteps, generateSelectionSortSteps, generateQuickSortSteps, generateGraphDFSSteps, generateLinearSearchSteps, generateFibonacciDPSteps, generateHeapSortSteps, generateCountingSortSteps, generateDijkstraSteps, generatePriorityQueueSteps, generateCircularQueueSteps, generateBSTTraversals } from "./services/visualizerService";
+import { generateBubbleSortSteps, generateInsertionSortSteps, generateLinkedListSteps, generateGraphBFSSteps, generateBinarySearchSteps, generateStackSteps, generateMergeSortSteps, generateQueueSteps, generateBSTSearchSteps, generateSelectionSortSteps, generateQuickSortSteps, generateGraphDFSSteps, generateLinearSearchSteps, generateFibonacciDPSteps, generateHeapSortSteps, generateCountingSortSteps, generateDijkstraSteps, generatePriorityQueueSteps, generateCircularQueueSteps, generateBSTTraversals, generateArraysBasicSteps, generateHashTableSteps, generateBucketSortSteps, generateAVLTreeSteps, generateBTreeSteps, generateBellmanFordSteps, generateKruskalSteps, generatePrimSteps, generateWarshallSteps, generateStrassenSteps, generateDoublyLinkedListSteps, generateCircularLinkedListSteps, generateHuffmanCodingSteps, generateThreadedBinaryTreeSteps, generateKnapsackSteps, generateLCSSteps, generateTopologicalSortSteps, generateAStarSteps, generateKMPSteps, generateSegmentTreeSteps, generateFenwickTreeSteps, generateDSUSteps } from "./services/visualizerService";
 import { ComplexityChart } from "./components/ComplexityChart";
-import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Settings2, Moon, Sun, Info, Database, X, LineChart, Binary, ChevronDown, Maximize2, Minimize2, ZoomIn, ZoomOut } from "lucide-react";
+import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Settings2, Moon, Sun, Info, Database, X, LineChart, Binary, ChevronDown, Maximize2, Minimize2, ZoomIn, ZoomOut, Sparkles, Shuffle } from "lucide-react";
 import { cn } from "./lib/utils";
 import { motion, AnimatePresence } from "motion/react";
+
+const isImplementationAvailable = (code?: string): boolean => {
+  if (!code) return false;
+  const trimmed = code.trim();
+  if (!trimmed) return false;
+  // Treat comment-only placeholders as unavailable implementations.
+  if (/^(\/\/|#|\/\*)/.test(trimmed)) return false;
+  return true;
+};
+
+const getPreferredLanguage = (algo: Algorithm): Language => {
+  if (isImplementationAvailable(algo.implementations.c)) return "c";
+  if (isImplementationAvailable(algo.implementations.cpp)) return "cpp";
+  if (isImplementationAvailable(algo.implementations.python)) return "python";
+  // Final fallback for unusual cases where all snippets are placeholders.
+  return "c";
+};
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"landing" | "visualizer">("landing");
   const [selectedAlgo, setSelectedAlgo] = useState<Algorithm>(ALGORITHMS[0]);
-  const [language, setLanguage] = useState<Language>("c");
+  const [language, setLanguage] = useState<Language>(getPreferredLanguage(ALGORITHMS[0]));
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [steps, setSteps] = useState<AlgoStep[]>([]);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
@@ -113,6 +130,54 @@ export default function App() {
       setSteps(generateBSTTraversals('pre'));
     } else if (algo.id === "binary-tree-postorder") {
       setSteps(generateBSTTraversals('post'));
+    } else if (algo.id === "arrays-basic") {
+      setSteps(generateArraysBasicSteps(arr));
+    } else if (algo.id === "hash-table") {
+      setSteps(generateHashTableSteps(arr));
+    } else if (algo.id === "bucket-sort") {
+      setSteps(generateBucketSortSteps(arr));
+    } else if (algo.id === "avl-tree") {
+      setSteps(generateAVLTreeSteps());
+    } else if (algo.id === "b-tree") {
+      setSteps(generateBTreeSteps());
+    } else if (algo.id === "bellman-ford") {
+      setSteps(generateBellmanFordSteps('A'));
+    } else if (algo.id === "kruskal") {
+      setSteps(generateKruskalSteps());
+    } else if (algo.id === "prim") {
+      setSteps(generatePrimSteps('A'));
+    } else if (algo.id === "warshall") {
+      setSteps(generateWarshallSteps());
+    } else if (algo.id === "strassen") {
+      setSteps(generateStrassenSteps());
+    } else if (algo.id === "doubly-linked-list") {
+      setSteps(generateDoublyLinkedListSteps(arr));
+    } else if (algo.id === "circular-linked-list") {
+      setSteps(generateCircularLinkedListSteps(arr));
+    } else if (algo.id === "huffman-coding") {
+      setSteps(generateHuffmanCodingSteps(arr));
+    } else if (algo.id === "threaded-binary-tree") {
+      setSteps(generateThreadedBinaryTreeSteps());
+    } else if (algo.id === "knapsack-problem") {
+      setSteps(generateKnapsackSteps(arr, Math.max(8, Math.min(20, arr[0] || 12))));
+    } else if (algo.id === "lcs") {
+      const seqA = arr.slice(0, 6).map((n) => String.fromCharCode(65 + (Math.abs(n) % 26))).join("");
+      const seqB = arr.slice(1, 7).map((n) => String.fromCharCode(65 + ((Math.abs(n) + 5) % 26))).join("");
+      setSteps(generateLCSSteps(seqA || "ABCBD", seqB || "BDCAB"));
+    } else if (algo.id === "topological-sort") {
+      setSteps(generateTopologicalSortSteps());
+    } else if (algo.id === "a-star") {
+      setSteps(generateAStarSteps('A', 'F'));
+    } else if (algo.id === "kmp-search") {
+      const text = arr.map((n) => String.fromCharCode(65 + (Math.abs(n) % 26))).join("") || "ABABACABA";
+      const pattern = text.slice(2, 6) || "ABAC";
+      setSteps(generateKMPSteps(text, pattern));
+    } else if (algo.id === "segment-tree") {
+      setSteps(generateSegmentTreeSteps(arr));
+    } else if (algo.id === "fenwick-tree") {
+      setSteps(generateFenwickTreeSteps(arr));
+    } else if (algo.id === "dsu") {
+      setSteps(generateDSUSteps());
     } else {
       setSteps([{ array: arr, description: "Algorithm visualization coming soon!", lineIdx: 0 }]);
     }
@@ -155,7 +220,66 @@ export default function App() {
     initializeSteps(selectedAlgo, inputData);
   };
 
+  const inputTokens = useMemo(() => inputData.split(",").map((x) => x.trim()).filter((x) => x.length > 0), [inputData]);
+  const parsedInput = useMemo(() => inputTokens.map((x) => parseInt(x, 10)).filter((x) => !Number.isNaN(x)), [inputTokens]);
+  const invalidTokenCount = inputTokens.length - parsedInput.length;
+
+  const estimateOperations = useCallback((n: number, complexity: string) => {
+    if (n <= 0) return "0";
+    const c = complexity.toLowerCase();
+    const logn = Math.max(1, Math.log2(n));
+    let ops = n;
+    if (c.includes("n²") || c.includes("n^2") || c.includes("n2")) ops = n * n;
+    else if (c.includes("n log n") || c.includes("nlogn")) ops = n * logn;
+    else if (c.includes("log n") || c.includes("logn")) ops = logn;
+    else if (c.includes("v^3") || c.includes("v³")) ops = n * n * n;
+    else if (c.includes("v*e") || c.includes("v + e") || c.includes("v+e")) ops = n * n;
+    else if (c.includes("n + k")) ops = n * 2;
+    return `~${Math.max(1, Math.round(ops)).toLocaleString()} ops`;
+  }, []);
+
+  const buildScenarioData = useCallback((mode: "best" | "average" | "worst" | "random") => {
+    const length = Math.min(12, Math.max(6, parsedInput.length || 8));
+    const base = Array.from({ length }, (_, i) => i + 1);
+    const shuffled = [...base].sort(() => Math.random() - 0.5).map((x) => x * 7 + (Math.floor(Math.random() * 5) - 2));
+
+    const sortingIds = new Set(["bubble-sort", "insertion-sort", "selection-sort", "quick-sort", "merge-sort", "heap-sort", "counting-sort", "bucket-sort"]);
+    const searchIds = new Set(["binary-search", "linear-search"]);
+
+    let arr: number[] = [];
+    if (sortingIds.has(selectedAlgo.id)) {
+      if (mode === "best") arr = [...base].map((x) => x * 4);
+      else if (mode === "worst") arr = [...base].reverse().map((x) => x * 4);
+      else if (mode === "average") arr = [...shuffled];
+      else arr = Array.from({ length }, () => Math.floor(Math.random() * 100));
+    } else if (searchIds.has(selectedAlgo.id)) {
+      const sorted = [...base].map((x) => x * 3);
+      const targetBest = sorted[Math.floor(sorted.length / 2)];
+      const targetWorst = 999;
+      const targetAvg = sorted[Math.floor(sorted.length * 0.75)];
+      const targetRandom = sorted[Math.floor(Math.random() * sorted.length)];
+      const target = mode === "best" ? targetBest : mode === "worst" ? targetWorst : mode === "average" ? targetAvg : targetRandom;
+      arr = [...sorted, target];
+    } else {
+      arr = mode === "random" ? Array.from({ length }, () => Math.floor(Math.random() * 100)) : [...shuffled];
+    }
+
+    return arr.join(", ");
+  }, [parsedInput.length, selectedAlgo.id]);
+
+  const applyScenario = useCallback((mode: "best" | "average" | "worst" | "random") => {
+    const data = buildScenarioData(mode);
+    setInputData(data);
+    initializeSteps(selectedAlgo, data);
+  }, [buildScenarioData, initializeSteps, selectedAlgo]);
+
   const currentStep = steps[currentStepIdx] || { array: [], description: "", lineIdx: 0 };
+  const progressPercent = steps.length > 1 ? Math.round((currentStepIdx / (steps.length - 1)) * 100) : 0;
+  const comparedCount = currentStep.compareIdx?.length || 0;
+  const swappedCount = currentStep.swapIdx?.length || 0;
+  const highlightedCount = currentStep.highlightIdx?.length || 0;
+  const visitedCount = currentStep.visited?.size || 0;
+  const totalArrayItems = currentStep.array?.length || 0;
 
   useEffect(() => {
     let timer: any;
@@ -175,6 +299,7 @@ export default function App() {
 
   const handleAlgoSelect = (algo: Algorithm) => {
     setSelectedAlgo(algo);
+    setLanguage(getPreferredLanguage(algo));
     setCurrentView("visualizer");
   };
 
@@ -326,10 +451,10 @@ export default function App() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1600px] mx-auto w-full">
                 {/* Visualizer Area */}
-                <div className="lg:col-span-8 flex flex-col gap-4 md:gap-6">
+                <div className="lg:col-span-7 flex flex-col gap-4 md:gap-6">
                   <div 
                     ref={visualizerRef}
-                    className="bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-colors duration-300 shadow-xl min-h-[350px] md:min-h-[500px] relative group/stage"
+                    className="bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-colors duration-300 shadow-xl min-h-[300px] md:min-h-[420px] lg:min-h-[440px] relative group/stage"
                   >
                     <VisualizerStage 
                       step={currentStep} 
@@ -534,7 +659,7 @@ export default function App() {
                 </div>
 
                 {/* Sidebar Info Panel */}
-                <div className="lg:col-span-4 flex flex-col gap-6">
+                <div className="lg:col-span-5 flex flex-col gap-6">
                   {/* Terminal Section Wrapper */}
                   <div className="flex flex-col gap-2">
                     {isMobile && (
@@ -561,18 +686,84 @@ export default function App() {
                           <CodeSection 
                             code={selectedAlgo.implementations[language]} 
                             language={language} 
+                            algorithmName={selectedAlgo.name}
                             onLanguageChange={setLanguage}
                             highlightLine={currentStep.lineIdx}
                             theme={theme}
                           />
 
                           <div className="bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 shadow-xl transition-colors duration-300 flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-3 mb-1">
                               <Info size={16} className="text-indigo-500" />
-                              <h4 className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Pro Tip</h4>
+                              <h4 className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Step Insights</h4>
                             </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Progress</div>
+                                <div className="text-lg font-black text-indigo-600 dark:text-indigo-400 leading-none mt-1">{progressPercent}%</div>
+                              </div>
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Code Line</div>
+                                <div className="text-lg font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">{(currentStep.lineIdx ?? 0) + 1}</div>
+                              </div>
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Array Size</div>
+                                <div className="text-lg font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">{totalArrayItems}</div>
+                              </div>
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Visited</div>
+                                <div className="text-lg font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">{visitedCount}</div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300">
+                                Compare: {comparedCount}
+                              </span>
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">
+                                Swap: {swappedCount}
+                              </span>
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
+                                Highlight: {highlightedCount}
+                              </span>
+                            </div>
+
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">
-                              Use the <span className="text-indigo-600 dark:text-indigo-400 font-bold italic">TIMELINE SEEKER</span> overlay within the visualizer stage to scrub through the algorithm steps precisely. 
+                              {currentStep.description || "Ready to visualize."}
+                            </p>
+                          </div>
+
+                          <div className="bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 shadow-xl transition-colors duration-300">
+                            <div className="flex items-center gap-3 mb-1">
+                              <Sparkles size={16} className="text-amber-500" />
+                              <h4 className="text-xs font-black uppercase tracking-widest text-zinc-900 dark:text-white italic">Smart Assistant</h4>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Input Quality</div>
+                                <div className="text-sm font-black leading-none mt-1 text-zinc-900 dark:text-zinc-100">
+                                  {invalidTokenCount === 0 ? "Valid" : `${invalidTokenCount} invalid`}
+                                </div>
+                              </div>
+                              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-3">
+                                <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Est. Work</div>
+                                <div className="text-sm font-black leading-none mt-1 text-indigo-600 dark:text-indigo-400">
+                                  {estimateOperations(parsedInput.length || 1, selectedAlgo.complexity.time)}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              <button onClick={() => applyScenario("best")} className="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">Best</button>
+                              <button onClick={() => applyScenario("average")} className="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">Average</button>
+                              <button onClick={() => applyScenario("worst")} className="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300">Worst</button>
+                              <button onClick={() => applyScenario("random")} className="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 inline-flex items-center justify-center gap-1"><Shuffle size={12} />Random</button>
+                            </div>
+
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">
+                              Apply scenario datasets instantly to stress-test {selectedAlgo.name.toLowerCase()} and compare behavior across best, average, and worst cases.
                             </p>
                           </div>
                         </motion.div>
